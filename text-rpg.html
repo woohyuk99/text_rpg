@@ -60,6 +60,11 @@
           hp: 100,
           xp: 0,
           att: 10,
+          attack(monster) {
+            monster.hp -= this.att; // 몬스터 체력 - 주인공 공격력
+            this.hp -= monster.att; // 주인공 체력 - 몬스터 공격력
+          }
+          // 객체 안의 this는 자기 자신을 가리킴
         };
         let monster = null; // 아직 몬스터 생성 X
         const monsterList = [
@@ -95,21 +100,37 @@
             $monsterName.textContent = `HP: ${monster.hp}/${monster.maxHp}`;
             $monsterName.textContent = `ATT: ${monster.att}`;
 
-          const monster1 = JSON.parse(JSON.stringify(monsterList[0]));
-          const monster2 = monsterList[0];
-          monster1.name = '새 몬스터';
-          console.log(monsterList[0].name); // 슬라임
-          monster2.name = '새 몬스터';
-          console.log(monsterList[0].name); //  새 몬스터
+         // const monster1 = JSON.parse(JSON.stringify(monsterList[0]));
+         // const monster2 = monsterList[0];
+         // monster1.name = '새 몬스터';
+         // console.log(monsterList[0].name); // 슬라임
+         // monster2.name = '새 몬스터';
+         // console.log(monsterList[0].name); //  새 몬스터
           
-          console.log(monsterList[0] === monster1); // 깊은 복사
-          console.log(monsterList[0] == monster2); // 참조 관계
+         // console.log(monsterList[0] === monster1); // 깊은 복사
+         // console.log(monsterList[0] == monster2); // 참조 관계
 
           } else if (input === '2') {
             // 휴식
           } else if (input === '3') {
             // 종료
           }
+        });
+
+        $battleMenu.addEventListener('submit', (event) => { // 전투메뉴 입력 버튼
+          const input = event.target['battle-input'].value;
+          if(input === '1') { // 공격
+            hero.attack(monster);
+            monster.attack(hero);
+            $heroHp.textContent = `HP: ${hero.hp}/${hero.maxHp}`; // 히어로 체력 표시
+            $monsterHp.textContent = `HP: ${monster.hp}/${monster.maxHp}`; // 몬스터 체력 표시
+            $message.textContent = `$(hero.att)의 데미지를 주고, $(monster.att)의 데미지를 받았다.`;
+          } else if (input === '2') { // 회복
+     
+          } else if (input === '3') { // 도망
+ 
+          }
+
         });
         
     </script>
