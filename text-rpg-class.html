@@ -62,12 +62,14 @@
                     { name: '스켈레톤', hp: 50, att: 15, xp: 20},
                     { name: '마왕', hp: 150, att: 35, xp: 50},
                 ];
-                this.start();
+                this.start(name); // 바로 밑의 start 메소드 의미함
             }
-            start() {
-                $gameMenu.addEventListener('submit', this.onGameMenuInput);
-                $battleMenu.addEventListener('submit', this.onBattleMenuInput);
-                this.changeScreen('game');
+            start(name) {
+                $gameMenu.addEventListener('submit', this.onGameMenuInput); // 메뉴 입력 버튼
+                $battleMenu.addEventListener('submit', this.onBattleMenuInput); // 전투 입력 버튼
+                this.changeScreen('game'); // 바로 밑의 changeScreen 메소드 의미함
+                this.hero = new Hero(this, name); // 주인공, Game 클래스의 hero 속성에 등록됨
+                this.updateHeroStat(); // updateHeroStat start 메뉴에서 호출
             }
             changeScreen(Screen) {
                 if (screen === 'start') { // 시작 화면
@@ -89,11 +91,69 @@
                 const input = event.target['menu-input'].value;
                 if (input === '1') { // 1. 모험
                     this.changeScreen('battle');
+                    const randomIndex = Math.floor(Math.random() * this.monsterList.length);
+                    const randomMonster = this.monsterList[randomIndex];
+                    this.monster = new Monster(
+                       this,
+                       randomMonster.name,
+                       randomMonster.hp,
+                       randomMonster.att, 
+                       randomMonster.xp, 
+                    );
+                    this.updateMonsterStat();
+                    this.showMessage(`몬스터와 마주쳤다. ${this.monster.name}인 것 같다!`);
                 } else if (input === '2') { // 2. 휴식
                     
                 } else if (input === '3') { // 3. 도망(종료)
 
                 }
+            }
+            onBattleMenuInput = (event) => {
+                event.preventDefault();
+                const input = event.target['battle-input'].value;
+                if (input === '1') { // 공격
+                    const { hero, monster } = this;
+                    hero.attack(monster);
+                    monster.attack(hero);
+                    this.showMessage(`${hero.att}의 데미지를 주고, ${monster.att}의 데미지를 받았다.`);
+                    this.updateHeroStat();
+                    this.updateMonsterStat();
+                } else if (input === '2') { // 회복
+
+                } else if (input === '3') { // 도망
+
+                }
+            }
+            updateHeroStat() { // 주인공의 체력, 공격력, 경험치 등을 화면에 표시
+                const { hero } = this;
+                if (hero === null) { // 주인공 사망
+                    $heroName.textContent = '';
+                    $heroLevel.textContent = '';
+                    $heroHp.textContent = '';
+                    $heroXp.textContent = '';
+                    $heroAtt.textContent = '';
+                    return;
+                }
+                $heroName.textContent = hero.name;
+                $heroLevel.textContent = `${hero.lev}Lev`;
+                $heroHp.textContent = `HP: ${hero.hp}/${hero.maxHp}`;
+                $heroName.textContent = `XP: ${hero.xp}/${15 * hero.lev}`;
+                $heroName.textContent = `ATT: ${hero.att}`;
+            }
+            updateMonsterStat() { // 몬스터의 체력, 공격력, 경험치 등을 화면에 표시
+                const { monster } = this;
+                if (monster === null) { // 몬스터 사망
+                    $monsterName.textContent = '';
+                    $monsterHp.textContent = '';
+                    $monsterAtt.textContent = '';
+                    return;
+                } 
+                $monsterName.textContent = monster.name;
+                $monsterHp.textContent = `HP: ${monster.hp}/${monster.maxHP}`;
+                $monsterAtt.textContent = `ATT: ${monster.att}`;
+            }
+            showMessage(text) { // 몬스터가 나타났다!!
+                $message.textContent = text;
             }
         }
         class Hero{
