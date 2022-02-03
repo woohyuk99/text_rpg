@@ -1,8 +1,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>텍스트 RPG</title>
 </head>
 <body>
@@ -65,6 +63,7 @@
                 this.start(name); // 바로 밑의 start 메소드 의미함
             }
             start(name) {
+                console.log(this);
                 $gameMenu.addEventListener('submit', this.onGameMenuInput); // 메뉴 입력 버튼
                 $battleMenu.addEventListener('submit', this.onBattleMenuInput); // 전투 입력 버튼
                 this.changeScreen('game'); // 바로 밑의 changeScreen 메소드 의미함
@@ -103,9 +102,12 @@
                     this.updateMonsterStat();
                     this.showMessage(`몬스터와 마주쳤다. ${this.monster.name}인 것 같다!`);
                 } else if (input === '2') { // 2. 휴식
-                    
+                    this.hero.hp = this.hero.maxHp;
+                    this.updateHeroStat();
+                    this.showMessage('충분한 휴식을 취했다.');   
                 } else if (input === '3') { // 3. 도망(종료)
-
+                    this.showMessage('');
+                    this.quit();
                 }
             }
             onBattleMenuInput = (event) => {
@@ -123,20 +125,25 @@
                         hero.getXp(monster.xp);
                         this.monster = null;
                         this.changeScreen('game');
-                    } else {
-                        this.showMessage(`${hero.att}의 데미지를 주고, ${monster.att}의 데미지를 받았다.`);
-                    }
-                    this.updateHeroStat();
-                    this.updateMonsterStat();
-                } else if (input === '2') { // 회복
+                    } else if (input === '2') { // 회복 {
+                        const { hero, monster } = this;
+                        hero.hp = Math.min(hero.maxHp, hero.hp + 20); // 주인공 체력 20 회복
+                        monster.attack(hero);
+                        this.showMessage('체력을 조금 회복했다');
+                        this.updateHeroStat();
+                    } else if (input === '3') { // 도망
+                        this.changeScreen('game');
+                        this.showMessage('부리나케 도망쳤다!');
+                        this.monster = null;
+                        this.updateMonsterStat();
 
-                } else if (input === '3') { // 도망
+                    } 
 
-                }
+                
             }
             updateHeroStat() { // 주인공의 체력, 공격력, 경험치 등을 화면에 표시
                 const { hero } = this;
-                if (hero === null) { // 주인공 사망
+                if (hero === null) {  // 주인공 사망
                     $heroName.textContent = '';
                     $heroLevel.textContent = '';
                     $heroHp.textContent = '';
@@ -144,13 +151,14 @@
                     $heroAtt.textContent = '';
                     return;
                 }
+            }
                 $heroName.textContent = hero.name;
                 $heroLevel.textContent = `${hero.lev}Lev`;
                 $heroHp.textContent = `HP: ${hero.hp}/${hero.maxHp}`;
                 $heroName.textContent = `XP: ${hero.xp}/${15 * hero.lev}`;
                 $heroName.textContent = `ATT: ${hero.att}`;
-            }
-            updateMonsterStat() { // 몬스터의 체력, 공격력, 경험치 등을 화면에 표시
+        }
+                updateMonsterStat() { // 몬스터의 체력, 공격력, 경험치 등을 화면에 표시
                 const { monster } = this;
                 if (monster === null) { // 몬스터 사망
                     $monsterName.textContent = '';
@@ -162,6 +170,7 @@
                 $monsterHp.textContent = `HP: ${monster.hp}/${monster.maxHP}`;
                 $monsterAtt.textContent = `ATT: ${monster.att}`;
             }
+        
             showMessage(text) { // 몬스터가 나타났다!!
                 $message.textContent = text;
             }
@@ -176,6 +185,8 @@
                 game = null;
             }
         }
+        
+    
         
         class Unit {
             constructor(game, name, hp, att, xp) { // 공통 속성
