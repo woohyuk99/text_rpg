@@ -125,7 +125,12 @@
                         hero.getXp(monster.xp);
                         this.monster = null;
                         this.changeScreen('game');
-                    } else if (input === '2') { // 회복 {
+                    } else {
+                        this.showMessage(`${hero.att}의 데미지를 주고, ${monster.att}의 데미지를 받았다.`);
+                        }
+                        this.updateHeroStat();
+                        this.updateMonsterStat();
+                    }  else if (input === '2') { // 회복 {
                         const { hero, monster } = this;
                         hero.hp = Math.min(hero.maxHp, hero.hp + 20); // 주인공 체력 20 회복
                         monster.attack(hero);
@@ -151,13 +156,13 @@
                     $heroAtt.textContent = '';
                     return;
                 }
-            }
+            
                 $heroName.textContent = hero.name;
                 $heroLevel.textContent = `${hero.lev}Lev`;
                 $heroHp.textContent = `HP: ${hero.hp}/${hero.maxHp}`;
                 $heroName.textContent = `XP: ${hero.xp}/${15 * hero.lev}`;
                 $heroName.textContent = `ATT: ${hero.att}`;
-        }
+                }
                 updateMonsterStat() { // 몬스터의 체력, 공격력, 경험치 등을 화면에 표시
                 const { monster } = this;
                 if (monster === null) { // 몬스터 사망
